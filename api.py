@@ -1,10 +1,8 @@
 import streamlit as st
 import requests
-import os
-import time
 
 # get some data from api and cache it:
-@st.cache_data
+# @st.cache_data
 def get_data():
     response = requests.get('https://randomuser.me/api')
     # print(response.status_code)
@@ -14,7 +12,7 @@ def get_data():
 # convert response into raw json data:
 data = get_data().json()
 
- # format selected data (should be a function but this is fine for now):
+# format selected data (should be a function but this is fine for now):
 gender = data["results"][0]["gender"].upper()
 title = data["results"][0]["name"]["title"]
 first_name = data["results"][0]["name"]["first"]
@@ -32,3 +30,7 @@ st.write(f"""
 \nAge: {age}
 \nBorn on: {dob}
 """)
+
+
+slider = st.slider("This is their age on a slider!", 0, 100, age)
+calendar = st.date_input("Birthday",dob)
