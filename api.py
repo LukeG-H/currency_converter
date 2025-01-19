@@ -1,36 +1,47 @@
 import streamlit as st
 import requests
 
-# get some data from api and cache it:
+# get some data from api and cache it (turned off for testing):
 # @st.cache_data
-def get_data():
+def get_data() -> requests.Response:
     response = requests.get('https://randomuser.me/api')
-    # print(response.status_code)
-    # print(response.json())
     return response
 
-# convert response into raw json data:
-data = get_data().json()
+# format selected data:
+def format_data(data: dict) -> dict:
+    person: dict = {}
 
-# format selected data (should be a function but this is fine for now):
-gender = data["results"][0]["gender"].upper()
-title = data["results"][0]["name"]["title"]
-first_name = data["results"][0]["name"]["first"]
-last_name = data["results"][0]["name"]["last"]
-dob = data["results"][0]["dob"]["date"][:10]
-age = data["results"][0]["dob"]["age"]
+    title: str = data["results"][0]["name"]["title"]
+    first_name: str = data["results"][0]["name"]["first"]
+    last_name: str = data["results"][0]["name"]["last"]
+    full_name: str = f'{title}. {first_name} {last_name}'
+    
+    person["name"] = full_name
+    person["gender"] = data["results"][0]["gender"].upper()
+    person["dob"] = data["results"][0]["dob"]["date"][:10]
+    person["age"] = data["results"][0]["dob"]["age"]
 
-random_person = f'{title}. {first_name} {last_name}'
+    return person
 
 # display data using streamlit:
-st.write(f"""
-# Today's Random person is...
-*{random_person}*
-\nGender: {gender}
-\nAge: {age}
-\nBorn on: {dob}
-""")
+def display(person: dict) -> None:
+    st.write(f"""
+    # Today's Random person is...
+    \n*{person["name"]}*
+    \nGender: {person["gender"]}
+    \nAge: {person["age"]}
+    \nBorn on: {person["dob"]}
+    """)
+    
+    slider = st.slider("This is their age on a slider!", 0, 100, person["age"])
+    calendar = st.date_input("Birthday:", person["dob"])
 
 
-slider = st.slider("This is their age on a slider!", 0, 100, age)
-calendar = st.date_input("Birthday",dob)
+def main() -> None:
+    person_data: dict = get_data().json()
+    person: dict = format_data(person_data)
+    display(person)
+
+
+if __name__ == '__main__':
+    main()
