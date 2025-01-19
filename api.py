@@ -1,27 +1,42 @@
 import streamlit as st
 import requests
+from typing import Union
 
-# get some data from api and cache it (turned off for testing):
-# @st.cache_data
-def get_data() -> requests.Response:
+# get some data from API and cache it
+# early return if API call is not successful
+# added test_status to test error conditions
+# @st.cache_data (turned off for testing)
+def get_data(test_status: int = None) -> Union[dict, str]:
     response = requests.get('https://randomuser.me/api')
-    return response
+    status = test_status if test_status is not None else response.status_code
 
-# format selected data:
+    if status != 200:
+        status_message: str = f"Status: {status}\nOops... something went wrong!"
+        return status_message
+
+    data = response.json()
+    return data
+
+
+# format selected data and return a new 'person' dict.
+# use try except raise for handling errors if the data structure changes
 def format_data(data: dict) -> dict:
-    person: dict = {}
+    try:
+        result: str = data["results"][0]
+        title: str = result["name"]["title"]
+        first_name: str = result["name"]["first"]
+        last_name: str = result["name"]["last"]
+        full_name: str = f"{title}. {first_name} {last_name}"
 
-    title: str = data["results"][0]["name"]["title"]
-    first_name: str = data["results"][0]["name"]["first"]
-    last_name: str = data["results"][0]["name"]["last"]
-    full_name: str = f'{title}. {first_name} {last_name}'
-    
-    person["name"] = full_name
-    person["gender"] = data["results"][0]["gender"].upper()
-    person["dob"] = data["results"][0]["dob"]["date"][:10]
-    person["age"] = data["results"][0]["dob"]["age"]
+        return {
+            "name": full_name,
+            "gender": result["gender"].upper(),
+            "dob": result["dob"]["date"][:10],
+            "age": result["dob"]["age"]
+        }
+    except (KeyError, IndexError) as err:
+        raise ValueError("Unexpected data format") from err
 
-    return person
 
 # display data using streamlit:
 def display(person: dict) -> None:
@@ -33,12 +48,18 @@ def display(person: dict) -> None:
     \nBorn on: {person["dob"]}
     """)
     
-    slider = st.slider("This is their age on a slider!", 0, 100, person["age"])
-    calendar = st.date_input("Birthday:", person["dob"])
+    slider: int  = st.slider("This is their age on a slider!", 0, 100, person["age"])
+    calendar: str = st.date_input("Birthday:", person["dob"])
 
 
 def main() -> None:
-    person_data: dict = get_data().json()
+    person_data: dict = get_data()
+
+    if isinstance(person_data, str):
+        st.error(person_data)
+        st.error("Failed to fetch data. Please check your internet connection or try again later.")
+        return
+
     person: dict = format_data(person_data)
     display(person)
 
