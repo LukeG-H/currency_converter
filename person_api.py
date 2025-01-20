@@ -11,7 +11,7 @@ def get_data(test_status: int = None) -> Union[dict, str]:
     status = test_status if test_status is not None else response.status_code
 
     if status != 200:
-        status_message: str = f"Status: {status}\nOops... something went wrong!"
+        status_message: str = f"Oops... something went wrong! [Status: {status}]"
         return status_message
 
     data = response.json()
