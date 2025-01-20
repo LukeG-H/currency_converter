@@ -6,7 +6,7 @@ import streamlit as st
 
 BASE_URL: str  = "http://api.exchangeratesapi.io/v1"
 ACCESS_KEY: str = f"?access_key={API_KEY}"
-ENDPOINTS: dict = {
+ENDPOINTS: Dict[str, str] = {
     "latest": "/latest", 
     "historic": "/YYYY-MM-DD"
     }
@@ -37,7 +37,7 @@ def get_currencies_form() -> Optional[Tuple[str, str, float]]:
 
 
 # get the data from the api and return as json:
-def get_data(end_point: str, test_status: int = None) -> dict:
+def get_data(end_point: str, test_status: int = None) -> Union[dict, str]:
     response: requests.Response = requests.get(BASE_URL+end_point+ACCESS_KEY)
     status: int = test_status if test_status is not None else response.status_code
     
@@ -47,7 +47,7 @@ def get_data(end_point: str, test_status: int = None) -> dict:
     
     # print(status)
     try:
-        data: any = response.json()
+        data: Dict[str, Any] = response.json()
 
         if not isinstance(data, dict): # validate expected type
             return "Unexpected API response format."
@@ -57,7 +57,7 @@ def get_data(end_point: str, test_status: int = None) -> dict:
         return "Failed to parse JSON response."
 
 
-def format_data(data: dict) -> dict:
+def format_data(data: Dict[str, Any]) -> Dict[str, Any]:
     pass
 
 
@@ -83,7 +83,7 @@ def main() -> None:
         return
     # result: float = get_result()
 
-    result = 420.69 # placeholder value
+    result: float = 420.69 # placeholder value
 
     display_result(from_currency, to_currency, amount, result)
     
