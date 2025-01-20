@@ -1,4 +1,5 @@
 from config import API_KEY
+from currencies import *
 from typing import *
 import requests
 import streamlit as st
@@ -22,39 +23,45 @@ def title() -> None:
     
 # get currencies and amount from user:
 def get_currencies_form() -> Optional[Tuple[str, str, float]]:
-    with st.form("conversion_form"):
-        from_currency: str = st.selectbox("From Currency:", ['USD', 'AUD', 'CAD', 'PLN','MXN'])
-        to_currency: str = st.selectbox("To Currency:", ['USD', 'AUD', 'CAD', 'PLN','MXN'])
-        amount: float = st.number_input("Enter the amount to convert")
-        submit: bool = st.form_submit_button("Convert")
+    # with st.form("conversion_form"):
+    #     from_currency: str = st.selectbox("From Currency:", ['EUR'])
+    #     to_currency: str = to_currency_list
+    #     amount: float = st.number_input("Enter the amount to convert")
+    #     submit: bool = st.form_submit_button("Convert")
+    form = conversion_form()
 
-    if submit:
-        print(from_currency, to_currency)
-        print(amount)
-        return from_currency, to_currency, amount
-    else:
-        return None
+    if form is None:
+        st.warning("Fill out the fields above and click [Convert]")
+        return
+    
+    from_currency, to_currency, amount = form
+    return from_currency, to_currency, amount
+    # if submit:
+    #     # print(from_currency, to_currency)
+    #     # print(amount)
+    #     return from_currency, to_currency, amount
+    # else:
+    #     return None
 
 
 # get the data from the api and return as json:
 def get_data(end_point: str, test_status: int = None) -> Union[dict, str]:
-    response: requests.Response = requests.get(BASE_URL+end_point+ACCESS_KEY)
+    # response: requests.Response = requests.get(BASE_URL+end_point+ACCESS_KEY)
     status: int = test_status if test_status is not None else response.status_code
     
     if status != 200:
         status_message: str = f"Oops... something went wrong! [Status: {status}]"
         return status_message
     
-    # print(status)
-    try:
-        data: Dict[str, Any] = response.json()
+    # try:
+    #     data: Dict[str, Any] = response.json()
 
-        if not isinstance(data, dict): # validate expected type
-            return "Unexpected API response format."
-        return data
+    #     if not isinstance(data, dict): # validate expected type
+    #         return "Unexpected API response format."
+    #     return data
     
-    except ValueError:
-        return "Failed to parse JSON response."
+    # except ValueError:
+    #     return "Failed to parse JSON response."
 
 
 def format_data(data: Dict[str, Any]) -> Dict[str, Any]:
@@ -70,7 +77,7 @@ def main() -> None:
     form_input = get_currencies_form()
     
     if form_input is None:
-        st.warning("Fill out the fields above and click [Convert]")
+        # st.warning("Fill out the fields above and click [Convert]")
         return
     
     from_currency, to_currency, amount = form_input
@@ -82,7 +89,7 @@ def main() -> None:
         st.error("Failed to fetch data. Please check your internet connection or try again later.")
         return
     # result: float = get_result()
-
+    # print(data)
     result: float = 420.69 # placeholder value
 
     display_result(from_currency, to_currency, amount, result)
