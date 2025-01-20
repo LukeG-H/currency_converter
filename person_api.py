@@ -3,19 +3,25 @@ import requests
 from typing import Union
 
 # get some data from API and cache it
-# early return if API call is not successful
+# early return if API call is not 200
 # added test_status to test error conditions
 # @st.cache_data (turned off for testing)
 def get_data(test_status: int = None) -> Union[dict, str]:
-    response = requests.get('https://randomuser.me/api')
-    status = test_status if test_status is not None else response.status_code
+    response: requests.Response = requests.get('https://randomuser.me/api')
+    status: int = test_status if test_status is not None else response.status_code
 
     if status != 200:
         status_message: str = f"Oops... something went wrong! [Status: {status}]"
         return status_message
 
-    data = response.json()
-    return data
+    try:
+        data: any = response.json() # JSON might not always be returned as a dict
+        if not isinstance(data, dict): # validate expected type
+            return "Unexpected API response format."
+        return data
+    
+    except ValueError:
+        return "Failed to parse JSON response"
 
 
 # format selected data and return a new 'person' dict.
@@ -34,6 +40,7 @@ def format_data(data: dict) -> dict:
             "dob": result["dob"]["date"][:10],
             "age": result["dob"]["age"]
         }
+    
     except (KeyError, IndexError) as err:
         raise ValueError("Unexpected data format") from err
 
