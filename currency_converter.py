@@ -29,8 +29,8 @@ def get_api_response(api_url: str, test_status: int = None) -> Optional[dict]:
 
 
 # get the data from the api and return as json, unless status is not 200:
-def send_api_request(api_call: str, test_status: int = None) -> Union[dict, str]:
-    response: requests.Response = requests.get(api_call)
+def send_api_request(api_url: str, test_status: int = None) -> Union[dict, str]:
+    response: requests.Response = requests.get(api_url)
     status: int = test_status if test_status is not None else response.status_code
     
     if status != 200:
