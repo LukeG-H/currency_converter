@@ -4,7 +4,7 @@ from typing import *
 def conversion_form() -> Tuple[str, str, float]:
     with st.form("conversion_form"):
         from_currency: str = st.selectbox("From Currency:", ['EUR'])
-        to_currency: list = st.selectbox("To Currency:", [
+        to_currency: str = st.selectbox("To Currency:", [
             "AED",
             "AFN",
             "ALL",
@@ -179,15 +179,15 @@ def conversion_form() -> Tuple[str, str, float]:
         amount: float = st.number_input("Enter the amount to convert")
         submit: bool = st.form_submit_button("Convert")
     
-    if submit and amount < 0.01:
+    if submit and amount <= 0.00:
         st.warning("Enter an amount higher than 0.00 and click [Convert]")
-        return
+        return None
     
     elif submit and amount > 0.00:
         # print(from_currency, to_currency)
-        # print(type(amount))
+        # print(type(to_currency))
         return from_currency, to_currency, amount
     
     else:
-        # st.warning("Fill out the fields above and click [Convert]")
+        st.warning("Fill out the fields above and click [Convert]")
         return None
