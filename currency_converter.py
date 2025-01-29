@@ -1,5 +1,5 @@
 from config import API_KEY
-from currencies import *
+from conversion_form import *
 from typing import *
 import requests
 import streamlit as st
@@ -19,29 +19,10 @@ def title() -> None:
     \n**Currency data updated daily*
              """)
     
-    st.subheader("Enter the currencies and amount you would like to convert:")
     
 # get currencies and amount from user:
 def get_currencies_form() -> Optional[Tuple[str, str, float]]:
-    # with st.form("conversion_form"):
-    #     from_currency: str = st.selectbox("From Currency:", ['EUR'])
-    #     to_currency: str = to_currency_list
-    #     amount: float = st.number_input("Enter the amount to convert")
-    #     submit: bool = st.form_submit_button("Convert")
-    form = conversion_form()
-
-    if form is None:
-        st.warning("Fill out the fields above and click [Convert]")
-        return
-    
-    from_currency, to_currency, amount = form
-    return from_currency, to_currency, amount
-    # if submit:
-    #     # print(from_currency, to_currency)
-    #     # print(amount)
-    #     return from_currency, to_currency, amount
-    # else:
-    #     return None
+    return conversion_form()
 
 
 # get the data from the api and return as json:
@@ -77,12 +58,11 @@ def main() -> None:
     form_input = get_currencies_form()
     
     if form_input is None:
-        # st.warning("Fill out the fields above and click [Convert]")
         return
     
     from_currency, to_currency, amount = form_input
     
-    data = get_data(ENDPOINTS["latest"], test_status=404)
+    data = get_data(ENDPOINTS["latest"], test_status=200)
 
     if isinstance(data, str):
         st.error(data)
