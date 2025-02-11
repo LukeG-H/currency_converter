@@ -50,12 +50,12 @@ def send_api_request(api_url: str, test_status: int = None) -> Union[dict, str]:
         return "Failed to parse JSON response."
 
 
-def format_data(data: Dict[str, Any], to_currency: str) -> Dict[str, Any]:
+def format_data(data: Dict[str, Any], to_currency: str) -> Tuple[float, object]:
     epoch_time = data["timestamp"]
     formatted_time: object = datetime.fromtimestamp(epoch_time)
     rate: float = data["rates"][to_currency]
     # print(rate)
-    # print(formatted_time)
+    print(type(formatted_time))
     return rate, formatted_time
 
 
