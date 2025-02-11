@@ -55,7 +55,7 @@ def format_data(data: Dict[str, Any], to_currency: str) -> Tuple[float, object]:
     formatted_time: object = datetime.fromtimestamp(epoch_time)
     rate: float = data["rates"][to_currency]
     # print(rate)
-    print(type(formatted_time))
+    # print(type(formatted_time))
     return rate, formatted_time
 
 
