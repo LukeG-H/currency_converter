@@ -1,43 +1,32 @@
-from config import API_KEY
-from context import *
-from conversion_form import *
+from context import create_api_request
+from form_ui import title, conversion_form, display_result
 from typing import *
 import requests
 import streamlit as st
 from datetime import datetime
 
 
-def title() -> None:
-    st.title("""
-    Currency Converter
-    \n*Currency data updated hourly*
-    """)
-
-
-def create_api_request(end_point: str, symbol: str) -> str:
-    return f"{BASE_URL}{ENDPOINTS[end_point]}{ACCESS_KEY}{QUERY}{symbol}"
-
-
-def get_api_response(api_url: str, test_status: int = None) -> Optional[dict]:
+# Fetch and return formatted exchange rate data, or return none if error
+def fetch_exchange_rate(to_currency: str, test_status: Optional[int] = None) -> Optional[Tuple[float, str, str]]:
+    api_url = create_api_request("latest", to_currency)
     api_response = send_api_request(api_url, test_status)
 
-    if isinstance(api_response, str):
-        st.error(api_response)
-        st.error("Failed to fetch data. Please check your internet connection or try again later.")
+    if not api_response:
+        st.error("Failed to retreive exchange rate data.")
         return None
     
-    return api_response
+    return format_data(api_response, to_currency)
 
 
-# get the data from the api and return as json, unless status is not 200:
+# Send the API request and return data as json dict, otherwise handle error and return none
 @st.cache_data
-def send_api_request(api_url: str, test_status: int = None) -> Union[dict, str]:
+def send_api_request(api_url: str, test_status: Optional[int] = None) -> Optional[Dict[str, Any]]:
     response: requests.Response = requests.get(api_url)
     status: int = test_status if test_status is not None else response.status_code
     
     if status != 200:
-        status_message: str = f"Oops... something went wrong! [Status: {status}]"
-        return status_message
+        st.error(f"[Status: {status}] Oops... something went wrong!")
+        return None
     
     try:
         data: Dict[str, Any] = response.json()
@@ -50,56 +39,40 @@ def send_api_request(api_url: str, test_status: int = None) -> Union[dict, str]:
         return "Failed to parse JSON response."
 
 
-def format_data(data: Dict[str, Any], to_currency: str) -> Tuple[float, object]:
-    epoch_time = data["timestamp"]
-    formatted_time: object = datetime.fromtimestamp(epoch_time)
+# Format json data to return just the rate and the datetime
+def format_data(data: Dict[str, Any], to_currency: str) -> Tuple[float, str, str]:
+    epoch_time: int = data["timestamp"]
     rate: float = data["rates"][to_currency]
-    # print(rate)
-    # print(type(formatted_time))
-    return rate, formatted_time
-
-
-def calculate_result(rate: float, amount: float) -> float:
-    return round(rate * amount, 2)
-
-def display_result(from_currency: str, to_currency: str, date_time: object, amount: float, result: float) -> None:
-    # col1, col2 = st.columns(2,gap='small')
-    # col1.write(f"As of {date_time}")
-    # col2.write(f"{amount} {from_currency} = {result} {to_currency}")
     
-    st.subheader(f"{amount} {from_currency} = {result} {to_currency}", divider="green",)
-    st.text(f"As of {date_time}")
+    date_time: datetime = datetime.fromtimestamp(epoch_time)
+    formatted_date: str = date_time.strftime("%d-%m-%Y")
+    formatted_time: str = date_time.strftime("%H:%M:%S")
+    
+    return rate, formatted_date, formatted_time
+
+
+# Calculate the conversion using rate from API
+def calculate_result(rate: float, amount: float) -> Union[float, int]:
+    restult = rate * amount
+    return round(restult, 2) if restult % 1 else int(restult)
 
 
 def main() -> None:
     title()
-    # get currencies and amount from user:
     form_input = conversion_form()
-    
     if not form_input:
         return
     
     from_currency, to_currency, amount = form_input
 
-    api_url = create_api_request("latest", to_currency)
-
-    # use test_status= for testing
-    api_response = get_api_response(api_url)
-    # api_response = send_api_request(api_url)
-    
-    # if isinstance(api_response, str):
-    #     st.error(api_response)
-    #     st.error("Failed to fetch data. Please check your internet connection or try again later.")
-    #     return
-    
-    if not api_response:
+    exchange_data = fetch_exchange_rate(to_currency) #test_status= for testing api failures
+    if not exchange_data:
         return
-
-    rate, date_time  = format_data(api_response, to_currency)
+    
+    rate, date, time = exchange_data
+    
     result = calculate_result(rate, amount)
-    # result: float = 420.69 # placeholder value
-
-    display_result(from_currency, to_currency, date_time, amount, result)
+    display_result(from_currency, to_currency, amount, date, time, result)
 
 
 if __name__ == "__main__":

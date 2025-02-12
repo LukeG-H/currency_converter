@@ -8,3 +8,8 @@ ENDPOINTS: Dict[str, str] = {
     }
 ACCESS_KEY: str = f"?access_key={API_KEY}"
 QUERY: str = "&symbols="
+
+
+# Construct the API request URL
+def create_api_request(end_point: str, symbol: str) -> str:
+    return f"{BASE_URL}{ENDPOINTS[end_point]}{ACCESS_KEY}{QUERY}{symbol}"
