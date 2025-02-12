@@ -57,6 +57,7 @@ def calculate_result(rate: float, amount: float) -> Union[float, int]:
     return round(restult, 2) if restult % 1 else int(restult)
 
 
+# Currency converter main function
 def main() -> None:
     title()
     form_input = conversion_form()
