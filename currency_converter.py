@@ -13,7 +13,7 @@ def fetch_exchange_rate_data(to_currency: str, test_status: Optional[int] = None
 
     if not api_response:
         st.error("Failed to retreive exchange rate data.")
-        return None
+        return
     
     return format_data(api_response, to_currency)
 
@@ -26,17 +26,19 @@ def send_api_request(api_url: str, test_status: Optional[int] = None) -> Optiona
     
     if status != 200:
         st.error(f"[Status: {status}] Oops... something went wrong!")
-        return None
+        return
     
     try:
         data: Dict[str, Any] = response.json()
 
         if not isinstance(data, dict): # validate expected type
-            return "Unexpected API response format."
+            st.error("Unexpected API response format.")
+            return
         return data
     
     except ValueError:
-        return "Failed to parse JSON response."
+        print("Failed to parse JSON response.")
+        return
 
 
 # Format json data to return just the rate and the datetime
