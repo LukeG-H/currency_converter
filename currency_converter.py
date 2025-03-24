@@ -6,10 +6,8 @@ from typing import *
 from datetime import datetime
 
 
-
-
 # Fetch and return formatted exchange rate data, or return none if error
-def fetch_exchange_rate(to_currency: str, test_status: Optional[int] = None) -> Optional[Tuple[float, str, str]]:
+def fetch_exchange_rate_data(to_currency: str, test_status: Optional[int] = None) -> Optional[Tuple[float, str, str]]:
     api_url = create_api_request("latest", to_currency)
     api_response = send_api_request(api_url, test_status)
 
@@ -67,7 +65,7 @@ def main() -> None:
     
     from_currency, to_currency, amount = form_input
 
-    exchange_data = fetch_exchange_rate(to_currency) #test_status= for testing api failures
+    exchange_data = fetch_exchange_rate_data(to_currency) #test_status= for testing api failures
     if not exchange_data:
         return
     
