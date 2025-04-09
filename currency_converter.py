@@ -55,7 +55,7 @@ def format_data(data: Dict[str, Any], to_currency: str) -> Tuple[float, str, str
 
 # Calculate the conversion using rate from API
 def calculate_result(rate: float, amount: float) -> Union[float, int]:
-    restult = rate * amount
+    restult: float  = rate * amount
     return round(restult, 2) if restult % 1 else int(restult)
 
 
