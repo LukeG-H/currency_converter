@@ -12,7 +12,6 @@ def fetch_exchange_rate_data(to_currency: str, test_status: Optional[int] = None
     api_response = send_api_request(api_url, test_status)
 
     if not api_response:
-        st.error("Failed to retreive exchange rate data.")
         return
     
     return format_data(api_response, to_currency)
@@ -60,24 +59,32 @@ def calculate_result(rate: float, amount: float) -> Union[float, int]:
 
 
 def main() -> None:
-    # title()
     ui: FormUi = FormUi()
-    form_input: Dict[str, str | float] | None = ui.conversion_form()
-    
-    if not form_input:
-        return
-    from_currency: str = form_input["from_currency"]
-    to_currency: str = form_input["to_currency"]
-    amount: float = form_input["amount"]
+    ui.conversion_form()
 
-    exchange_data = fetch_exchange_rate_data(to_currency) #test_status= for testing api failures
+    if not ui.form_has_valid_input():
+        return
+    
+    from_currency: str = ui.form_values["from_currency"]
+    to_currency: str = ui.form_values["to_currency"]
+    amount: float = ui.form_values["amount"]
+
+    exchange_data = fetch_exchange_rate_data(to_currency, test_status=404) #test_status= for testing api failures
     if not exchange_data:
+        ui.display_error("Failed to retreive exchange rate data.")
         return
     
     rate, date, time = exchange_data
-    
     result = calculate_result(rate, amount)
-    ui.display_result(from_currency, to_currency, amount, date, time, result)
+
+    ui.display_result(
+        from_currency, 
+        to_currency,
+        amount, 
+        date, 
+        time, 
+        result
+        )
 
 
 if __name__ == "__main__":

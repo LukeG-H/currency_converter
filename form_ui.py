@@ -8,13 +8,12 @@ from typing import *
 
 class FormUi:
     def __init__(self):
-        self.title()
         self.form_values: Dict[str, str | float | None] = {
             "from_currency": None,
             "to_currency": None,
             "amount": None
             }
-        # self.conversion_form()
+        self.title()
 
     def title(self) -> None:
         """Sets the page title (header)"""
@@ -27,6 +26,14 @@ class FormUi:
             color_name="violet-70",
         )
 
+    def form_has_valid_input(self) -> bool:
+        values = self.form_values
+        if not values:
+            return False
+        if not isinstance(values.get("amount"), (int, float)):
+            return False
+        return values["amount"] > 0
+
     def annimation(self):
         """Annimation displayed on Submission of the form"""
         rain(
@@ -35,23 +42,26 @@ class FormUi:
             falling_speed = 2,
             animation_length = 1,
         )
-
+    
     # Conversion form for user inputs
-    def conversion_form(self) -> Dict[str, str | float] | None:
-        """Main currency conversion form. Returns: form_values (Dict[str, str | float] | None)"""
+    def conversion_form(self) ->  None:
+        """Main currency conversion form. Updates form_values if input is valid"""
         self.form = st.form("conversion_form")
         with self.form:
-            self.form_values["from_currency"] = st.selectbox("From Currency:", ['EUR'])
-            self.form_values["to_currency"] = st.selectbox("To Currency:", CURRENCY_OPTIONS, index=CURRENCY_OPTIONS.index("USD"))
-            self.form_values["amount"] = st.number_input("Enter the amount to convert")
+            from_currency: str = st.selectbox("From Currency:", ['EUR'])
+            to_currency: str = st.selectbox("To Currency:", CURRENCY_OPTIONS, index=CURRENCY_OPTIONS.index("USD"))
+            amount: float = st.number_input("Enter the amount to convert")
             submit: bool = st.form_submit_button("Convert")
             
             if submit:
-                if self.form_values["amount"] <= 0.00:
+                self.form_values["from_currency"] = from_currency
+                self.form_values["to_currency"] = to_currency
+                self.form_values["amount"] = amount
+
+                if not self.form_has_valid_input():
                     st.warning("Enter an amount higher than 0.00 and click [Convert]")
                     return
-                self.annimation()
-                return self.form_values
+                return
 
             st.info("Fill out the fields above and click [Convert]")
         return
@@ -64,5 +74,9 @@ class FormUi:
         # col2.write(f"{amount} {from_currency} = {result} {to_currency}")
         with self.form:
             st.success("Success!")
+            self.annimation()
             st.subheader(f"{amount} {from_currency} = {result} {to_currency}", divider="green")
         st.text(f"""As of: {date} {time}""")
+
+    def display_error(self, message: str) -> None:
+        st.error(message)
