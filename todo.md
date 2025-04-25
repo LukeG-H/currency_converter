@@ -2,10 +2,10 @@
 
 ### Form UI:
 
-- [] Implement form as a class
-- [] Collect / return form inputs as a Dict (form_values)
-- [] Add status elements to form on submit
-- [] Move if submit statement inside the form
+- [x] Implement form as a class
+- [x] Collect / return form inputs as a Dict (form_values)
+- [x] Add status elements to form on submit
+- [x] Move if submit statement inside the form
 
 ### Exchange API:
 
