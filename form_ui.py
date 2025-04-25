@@ -27,6 +27,10 @@ class FormUi:
         )
 
     def form_has_valid_input(self) -> bool:
+        """
+        Validates: form values are populated, amount is either an int or float, and amount is greater than 0.
+        Returns: True | False
+        """
         values = self.form_values
         if not values:
             return False
@@ -34,16 +38,15 @@ class FormUi:
             return False
         return values["amount"] > 0
 
-    def annimation(self):
+    def annimation(self) -> None:
         """Annimation displayed on Submission of the form"""
         rain(
             emoji = "💱",
             font_size = 60,
-            falling_speed = 2,
+            falling_speed = 4,
             animation_length = 1,
         )
     
-    # Conversion form for user inputs
     def conversion_form(self) ->  None:
         """Main currency conversion form. Updates form_values if input is valid"""
         self.form = st.form("conversion_form")
@@ -62,21 +65,29 @@ class FormUi:
                     st.warning("Enter an amount higher than 0.00 and click [Convert]")
                     return
                 return
-
             st.info("Fill out the fields above and click [Convert]")
         return
 
-    # Display the results of the conversion
-    def display_result(self, from_currency: str, to_currency: str, amount: float, date: str, time: str,  result: float) -> None:
-        """Displays the result of the currency conversion calculated from the api request"""
-        # col1, col2 = st.columns(2,gap='small')
-        # col1.write(f"As of {date_time}")
-        # col2.write(f"{amount} {from_currency} = {result} {to_currency}")
+    def display_result(
+        self, 
+        from_currency: str, 
+        to_currency: str, 
+        amount: float, 
+        date: str, 
+        time: str, 
+        result: float
+    ) -> None:
+        """Displays the result of the currency conversion calculated from the API request"""
         with self.form:
             st.success("Success!")
             self.annimation()
-            st.subheader(f"{amount} {from_currency} = {result} {to_currency}", divider="green")
-        st.text(f"""As of: {date} {time}""")
+            
+            st.subheader(
+                f"*{amount:,.2f}* :blue[{from_currency}] = *{result:,.2f}* :blue[{to_currency}]", 
+                divider="green"
+            )
+        st.caption(f"As of: {date} {time}")
 
     def display_error(self, message: str) -> None:
+        """Displays an error message in the UI if something goes wrong"""
         st.error(message)
