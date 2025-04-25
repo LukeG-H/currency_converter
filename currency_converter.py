@@ -1,7 +1,7 @@
 import requests
 import streamlit as st
 from context import create_api_request
-from form_ui import title, conversion_form, display_result
+from form_ui import FormUi
 from typing import *
 from datetime import datetime
 
@@ -60,12 +60,15 @@ def calculate_result(rate: float, amount: float) -> Union[float, int]:
 
 
 def main() -> None:
-    title()
-    form_input = conversion_form()
+    # title()
+    ui: FormUi = FormUi()
+    form_input: Dict[str, str | float] | None = ui.conversion_form()
+    
     if not form_input:
         return
-    
-    from_currency, to_currency, amount = form_input
+    from_currency: str = form_input["from_currency"]
+    to_currency: str = form_input["to_currency"]
+    amount: float = form_input["amount"]
 
     exchange_data = fetch_exchange_rate_data(to_currency) #test_status= for testing api failures
     if not exchange_data:
@@ -74,7 +77,7 @@ def main() -> None:
     rate, date, time = exchange_data
     
     result = calculate_result(rate, amount)
-    display_result(from_currency, to_currency, amount, date, time, result)
+    ui.display_result(from_currency, to_currency, amount, date, time, result)
 
 
 if __name__ == "__main__":
