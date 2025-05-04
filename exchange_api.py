@@ -1,7 +1,6 @@
-import requests
-import streamlit as st
-from context import create_api_request
+# from context import create_api_request
 from form_ui import FormUi
+from api_client import APIClient
 from typing import *
 from datetime import datetime
 from dataclasses import dataclass
@@ -16,7 +15,7 @@ class ExchangeData:
 class ExchangeAPI:
     def __init__(self, ui: FormUi):
         self.ui = ui
-        self.test_API_status: int | None  = None  #test_status= for testing api failures
+        self.api_client = APIClient()
     
     def run(self) -> None:
         """Manages the currency conversion process flow"""
@@ -37,38 +36,16 @@ class ExchangeAPI:
 
     def fetch_exchange_rate_data(self, to_currency: str) -> ExchangeData | None:
         """Fetches exchange rate data. Returns: formatted data (ExchangeData) | None"""
-        api_url = create_api_request("latest", to_currency)
-        api_response = self.send_api_request(api_url)
+        api_url = self.api_client.create_api_request(to_currency)
+        api_response = self.api_client.get(api_url)
 
-        if not api_response:
-            return None
-        
-        return self.format_data(api_response, to_currency)
+        data, error = api_response
 
-    @st.cache_data
-    def send_api_request(_self, api_url: str) -> dict[str, Any] | None:
-        """
-        Gets the API response and handles errors if status is not 200 (OK), or data is not as expected.
-        Returns: API data (dict[str, Any]) | None
-        """
-        response: requests.Response = requests.get(api_url)
-        status: int = _self.test_API_status if _self.test_API_status is not None else response.status_code
-        
-        if status != 200:
-            _self.ui.display_error("error", f"[Status: {status}] Oops... something went wrong!")
+        if error:
+            self.ui.display_error("error", error)
             return None
         
-        try:
-            data: dict[str, Any] = response.json()
-        
-            if not isinstance(data, dict): # validate expected type
-                _self.ui.display_error("error", "Unexpected API response format.")
-                return None
-            return data
-        
-        except ValueError:
-            _self.ui.display_error("error", "Failed to parse JSON response.")
-            return None
+        return self.format_data(data, to_currency)
 
     def format_data(self, data: dict[str, Any], to_currency: str) -> ExchangeData:
         """

@@ -11,9 +11,9 @@
 ### Exchange API:
 
 - [x] Implement exchange api as a class
-- [] Create an APIClient class to handle create_api_request & send_api_request (better encapsulation + avoid streamlit caching error with 'self')
+- [x] Create an APIClient class to handle create_api_request & send_api_request (better encapsulation + avoid streamlit caching error with 'self')
 - [] Create a test_api_response method for testing invalid responses
-- [] Move create_api_request into exchange api class
+- [x] Move create_api_request into exchange api class
 
 ### API Request Builder:
 
@@ -41,3 +41,10 @@
     self.timeout,
     self.retries,
     True
+
+### Pytest:
+
+- [] Create tests for each class
+  - [] exchange_api
+  - [] api_client
+  - [] form_ui
