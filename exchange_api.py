@@ -12,6 +12,7 @@ class ExchangeData:
     date: str
     time: str
 
+
 def fetch_exchange_rate_data(
     to_currency: str, 
     ui: FormUi, 
