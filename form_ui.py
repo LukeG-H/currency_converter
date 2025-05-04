@@ -3,15 +3,18 @@ from streamlit_extras.colored_header import colored_header
 from streamlit_extras.let_it_rain import rain
 from currencies import CURRENCY_OPTIONS, CURRENCY_OPTIONS_WITH_PLACEHOLDER, EUR_WITH_PLACEHOLDER
 from typing import *
+from dataclasses import dataclass
+
+@dataclass
+class FormValues:
+    from_currency: str | None = None
+    to_currency: str | None = None
+    amount: float | None = None
 
 
 class FormUi:
     def __init__(self):
-        self.form_values: Dict[str, str | float | None] = {
-            "from_currency": None,
-            "to_currency": None,
-            "amount": None
-            }
+        self.form_values = FormValues()
         self.title()
 
     def title(self) -> None:
@@ -41,9 +44,9 @@ class FormUi:
             submit: bool = st.form_submit_button("Convert")
             
             if submit:
-                self.form_values["from_currency"] = from_currency
-                self.form_values["to_currency"] = to_currency
-                self.form_values["amount"] = amount
+                self.form_values.from_currency = from_currency
+                self.form_values.to_currency = to_currency
+                self.form_values.amount = amount
 
                 if not self.form_has_valid_input():
                     self.display_error("warning", self.reject_reason)
@@ -62,15 +65,11 @@ class FormUi:
             self.reject_reason = "Values are missing"
             return False
         
-        if not isinstance(values.get("amount"), (int, float)):
-            self.reject_reason = "Amount is not an int or float"
-            return False
-        
-        if values["from_currency"] not in CURRENCY_OPTIONS or values["to_currency"] not in CURRENCY_OPTIONS:
+        if values.from_currency not in CURRENCY_OPTIONS or values.to_currency not in CURRENCY_OPTIONS:
             self.reject_reason = "Invalid Currency - Please choose a currency from the list"
             return False
         
-        if not values["amount"] > 0:
+        if not values.amount > 0:
             self.reject_reason = "Invalid Amount - Please enter an amount greater than 0.00 and click [Convert]"
             return False
         
@@ -84,20 +83,15 @@ class FormUi:
             case "error":
                 st.error(message)
 
-    def display_result(
-        self, 
-        date: str,
-        time: str,
-        result: float
-    ) -> None:
+    def display_result(self, date: str, time: str, result: float) -> None:
         """Displays the result of the currency conversion calculated from the API request"""
         with self.form:
             st.success("Success!")
             self.annimation()
             
-            amount = self.form_values["amount"]
-            from_currency = self.form_values["from_currency"]
-            to_currency = self.form_values["to_currency"]
+            amount = self.form_values.amount
+            from_currency = self.form_values.from_currency
+            to_currency = self.form_values.to_currency
 
             st.subheader(
                 f"*{amount:,.2f}* :blue[{from_currency}] = *{result:,.2f}* :blue[{to_currency}]", 
