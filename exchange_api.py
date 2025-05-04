@@ -34,7 +34,7 @@ class ExchangeAPI:
         self.ui.display_result(exchange_data.date, exchange_data.time, result)
 
     def fetch_exchange_rate_data(self, to_currency: str) -> ExchangeData | None:
-        """Fetches exchange rate data. Returns: formatted data (ExchangeData) | None"""
+        """Fetches exchange rate data. Returns: formatted data [ExchangeData | None]"""
         api_url = self.api_client.create_api_request(to_currency)
         api_response = self.api_client.get(api_url)
 
@@ -60,10 +60,10 @@ class ExchangeAPI:
         
         return ExchangeData(rate=rate, date=formatted_date, time=formatted_time)
 
-    def calculate_result(self, rate: float, amount: float) -> float |  int:
+    def calculate_result(self, rate: float, amount: float) -> float:
         """
         Calculates the result of the conversion from the orginal amount using the exchange rate.
-        Returns: result (float | int)
+        Returns: result [float]
         """
         result: float  = rate * amount
-        return round(result, 2) if result % 1 else int(result)
+        return round(result, 2)
