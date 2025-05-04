@@ -15,7 +15,7 @@ class APIClient:
     QUERY: str = "&symbols="
     
     def __init__(self):
-        self.test_API_status_response: int | None = None
+        self.test_API_response_status: int | None = None
 
     # ---------------------- STATIC METHODS ---------------------- #
 
@@ -48,4 +48,4 @@ class APIClient:
 
     def get(self, api_url: str) -> tuple[dict[str, Any] | None, str | None]:
         """Gets the API response. Returns API data[dict] | None, error[str] | None"""
-        return self._cached_request(api_url, self.test_API_status_response)
+        return self._cached_request(api_url, self.test_API_response_status)
