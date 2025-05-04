@@ -5,6 +5,7 @@ from config import API_KEY
 
 
 class APIClient:
+    # ---------------------- CONSTANTS (ATTRIBUTES) ---------------------- #
     BASE_URL: str  = "http://api.exchangeratesapi.io/v1"
     ENDPOINTS: dict[str, str] = {
         "latest": "/latest", 
@@ -16,14 +17,12 @@ class APIClient:
     def __init__(self):
         self.test_API_status_response: int | None = None
 
+    # ---------------------- STATIC METHODS ---------------------- #
+
     @staticmethod
     def create_api_request(symbol: str, end_point: str = "latest") -> str:
         """Creates the URL to be sent as the API request"""
         return f"{APIClient.BASE_URL}{APIClient.ENDPOINTS[end_point]}{APIClient.ACCESS_KEY}{APIClient.QUERY}{symbol}"
-
-    def get(self, api_url: str) -> tuple[dict[str, Any] | None, str | None]:
-        """Gets the API response. Returns: tuple (API data[dict]) | None, error[str] | None"""
-        return self._cached_request(api_url, self.test_API_status_response)
     
     @staticmethod
     @st.cache_data
@@ -44,3 +43,9 @@ class APIClient:
         
         except ValueError:
             return None, "Failed to parse json response"
+    
+    # ---------------------- INSTANCE METHODS ---------------------- # 
+
+    def get(self, api_url: str) -> tuple[dict[str, Any] | None, str | None]:
+        """Gets the API response. Returns API data[dict] | None, error[str] | None"""
+        return self._cached_request(api_url, self.test_API_status_response)
